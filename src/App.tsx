@@ -6,6 +6,7 @@ import SettingsScreen from './page/SettingsScreen';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import Login from './page/Login';
 import Index from './page/Index';
+import List from './page/List';
 
 function EmptyScreen() {
   return <View />;
@@ -20,6 +21,7 @@ export default function App() {
         <Stack.Screen name="Index" component={Index} />
         <Stack.Screen name="Settings" component={SettingsScreen} />
         <Stack.Screen name="Login" component={Login} />
+        <Stack.Screen name="List" component={List} />
         <Stack.Screen name="Home" component={EmptyScreen} />
       </Stack.Navigator>
     </NavigationContainer>

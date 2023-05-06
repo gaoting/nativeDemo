@@ -3,6 +3,7 @@ import {Text, View, Button} from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import SettingsScreen from '../page/SettingsScreen';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import List from '../page/List';
 
 const Tab = createBottomTabNavigator();
 
@@ -39,8 +40,26 @@ function HomeTabs() {
           ),
         }}
       />
-      <Tab.Screen name="List" component={EmptyScreen} />
-      <Tab.Screen name="SettingsScreen" component={SettingsScreen} />
+      <Tab.Screen
+        name="List"
+        component={List}
+        options={{
+          tabBarLabel: 'List',
+          tabBarIcon: ({color}) => (
+            <MaterialCommunityIcons name="list" color={color} size={26} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="SettingsScreen"
+        component={SettingsScreen}
+        options={{
+          tabBarLabel: 'Settings',
+          tabBarIcon: ({color}) => (
+            <MaterialCommunityIcons name="settings" color={color} size={26} />
+          ),
+        }}
+      />
     </Tab.Navigator>
   );
 }
