@@ -8,6 +8,7 @@ import Login from './page/Login';
 import Index from './page/Index';
 import List from './page/List';
 
+
 function EmptyScreen() {
   return <View />;
 }

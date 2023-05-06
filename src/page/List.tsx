@@ -1,13 +1,14 @@
-import React, {useState, setText, useEffect} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Image,
   Text,
   StyleSheet,
   TextInput,
-  Button,
   TouchableOpacity,
 } from 'react-native';
+import sha256 from 'js-sha256';
+import Config from 'react-native-config';
 
 const styles = StyleSheet.create({
   container: {
@@ -78,36 +79,47 @@ function IMsg() {
     </View>
   );
 }
+const keys = Config.CHARTGPT_KEY;
 
-const Api = async () => {
-  await fetch('https://xiaomo-gpt.netlify.app/api/generate', {
+const Api = async arr => {
+  console.log('arr', arr, sha256(keys));
+  const params = {
     method: 'POST',
-    headers: {
-      Accept: '*/*',
-      'Accept-Encoding': 'gzip, deflate, br',
-      'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
-      'Content-Type': 'text/plain;charset=UTF-8',
-    },
-    body: JSON.stringify({
+    // headers: {
+    //   Accept: '*/*',
+    //   'Accept-Encoding': 'gzip, deflate, br',
+    //   'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+    //   'Content-Type': 'text/plain;charset=UTF-8',
+    // },
+    body: {
       time: Date.now(),
-      sign: GetKey,
-    }),
-  })
-    .then(response => response.json())
-    .then(data => console.log(data))
+      sign: sha256(keys),
+      messages: arr,
+      pass: null,
+    },
+  };
+  console.log('params', params);
+  await fetch('https://xiaomo-gpt.netlify.app/api/generate', params)
+    .then(response => response.text())
+    .then(data => console.log('data', data))
     .catch(error => console.error(error));
 };
 
-const GetKey = () => {
-  return '';
-};
+const msgList = [];
 
 function SendMsg() {
-  useEffect(() => {
-    Api();
-  }, []);
+  // useEffect(() => {
+  //   Api();
+  // }, []);
 
-  const [msgValue, setMsgValue] = useState('');
+  const [msgValue, setText] = useState('');
+  const handleButtonClick = () => {
+    let obj = {role: 'user', content: msgValue};
+    // console.log('msgValue', msgValue);
+    msgList.push(obj);
+    console.log('msgList', msgList);
+    Api(msgList);
+  };
   return (
     <View style={styles.flex}>
       <TextInput
@@ -115,10 +127,10 @@ function SendMsg() {
         multiline={true}
         numberOfLines={4}
         placeholder="please input your msg"
-        onChangeText={text => setMsgValue(text)}
+        onChangeText={setText}
         value={msgValue}
       />
-      <TouchableOpacity style={styles.button} onPress={() => setMsgValue('')}>
+      <TouchableOpacity style={styles.button} onPress={handleButtonClick}>
         <Text style={styles.buttonText}>Submit</Text>
       </TouchableOpacity>
     </View>
