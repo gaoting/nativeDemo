@@ -1,4 +1,4 @@
-import React, {useState, setText} from 'react';
+import React, {useState, setText, useEffect} from 'react';
 import {
   View,
   Image,
@@ -79,12 +79,41 @@ function IMsg() {
   );
 }
 
+const Api = async () => {
+  await fetch('https://xiaomo-gpt.netlify.app/api/generate', {
+    method: 'POST',
+    headers: {
+      Accept: '*/*',
+      'Accept-Encoding': 'gzip, deflate, br',
+      'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+      'Content-Type': 'text/plain;charset=UTF-8',
+    },
+    body: JSON.stringify({
+      time: Date.now(),
+      sign: GetKey,
+    }),
+  })
+    .then(response => response.json())
+    .then(data => console.log(data))
+    .catch(error => console.error(error));
+};
+
+const GetKey = () => {
+  return '';
+};
+
 function SendMsg() {
+  useEffect(() => {
+    Api();
+  }, []);
+
   const [msgValue, setMsgValue] = useState('');
   return (
     <View style={styles.flex}>
       <TextInput
         style={styles.input}
+        multiline={true}
+        numberOfLines={4}
         placeholder="please input your msg"
         onChangeText={text => setMsgValue(text)}
         value={msgValue}
