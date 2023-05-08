@@ -1,13 +1,11 @@
-import React, {useCallback} from 'react';
-import {View, Text} from 'react-native';
+import React from 'react';
+import {View} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import SettingsScreen from './page/SettingsScreen';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import Login from './page/Login';
 import Index from './page/Index';
 import List from './page/List';
-
 
 function EmptyScreen() {
   return <View />;
