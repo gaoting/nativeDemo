@@ -9,6 +9,12 @@ import {
 } from 'react-native';
 import Config from 'react-native-config';
 import type {MsgListType} from '../types';
+import type {
+  ParsedEvent,
+  ReconnectInterval,
+  createParser,
+} from 'eventsource-parser';
+import {TextEncoder, TextDecoder} from 'text-encoding';
 
 const styles = StyleSheet.create({
   container: {
@@ -83,8 +89,6 @@ const keys = Config.CHARTGPT_KEY;
 const baseUrl = Config.HTTPS_PROXY;
 
 const Api = async (arr: MsgListType[]) => {
-  const encoder = new TextEncoder();
-  const decoder = new TextDecoder();
   const params = {
     method: 'POST',
     headers: {
@@ -99,12 +103,14 @@ const Api = async (arr: MsgListType[]) => {
   };
   console.log('params', params);
   await fetch(`${baseUrl}/v1/chat/completions`, params)
-    .then(response => response)
-    .then(data => {
-      console.log('data', data);
+    .then(response => response.blob())
+    .then(blob => {
+      console.log('blob-------', blob);
+      // const stream = new BlobReader(blob)
     })
     .catch(error => console.error(error));
 };
+
 
 const msgList: MsgListType[] = [];
 

@@ -19,6 +19,7 @@
     "@unocss/reset": "^0.51.12",
     "add": "^2.0.6",
     "dotenv": "^16.0.3",
+    "eventsource-parser": "^1.0.0",
     "js-sha256": "^0.9.0",
     "pnpm": "^8.4.0",
     "react": "18.2.0",
@@ -27,7 +28,8 @@
     "react-native-safe-area-context": "^4.5.2",
     "react-native-screens": "^3.20.0",
     "react-native-vector-icons": "^9.2.0",
-    "redux-devtools-extension": "^2.13.9"
+    "redux-devtools-extension": "^2.13.9",
+    "text-encoding": "^0.7.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
