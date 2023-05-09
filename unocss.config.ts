@@ -25,11 +25,7 @@ export default defineConfig({
       },
     }),
   ],
-  transformers: [transformerVariantGroup(), transformerDirectives()],
-  shortcuts: [
-    {
-      fc: 'flex justify-center',
-      fi: 'flex items-center',
+  tra
       fb: 'flex justify-between',
       fcc: 'fc items-center',
       fie: 'fi justify-end',

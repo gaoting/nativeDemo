@@ -9,12 +9,7 @@ import {
 } from 'react-native';
 import Config from 'react-native-config';
 import type {MsgListType} from '../types';
-import type {
-  ParsedEvent,
-  ReconnectInterval,
-  createParser,
-} from 'eventsource-parser';
-import {TextEncoder, TextDecoder} from 'text-encoding';
+import {createParser} from 'eventsource-parser';
 
 const styles = StyleSheet.create({
   container: {
@@ -98,30 +93,27 @@ const Api = async (arr: MsgListType[]) => {
     body: JSON.stringify({
       model: 'gpt-3.5-turbo',
       messages: arr,
-      stream: true,
+      stream: false,
     }),
   };
   console.log('params', params);
-  await fetch(`${baseUrl}/v1/chat/completions`, params)
-    .then(response => response.blob())
-    .then(blob => {
-      console.log('blob-------', blob);
-      // const stream = new BlobReader(blob)
-    })
-    .catch(error => console.error(error));
+  const answerRes = await fetch(`${baseUrl}/v1/chat/completions`, params);
+  const data = await answerRes;
+  const jsons = await data.json();
+  return jsons.choices[0].message;
 };
-
-
 const msgList: MsgListType[] = [];
 
+let dataObj = {};
 function SendMsg() {
   const [msgValue, setText] = useState('');
-  const handleButtonClick = () => {
+  const handleButtonClick = async () => {
     let obj: MsgListType = {role: 'user', content: msgValue};
     // console.log('msgValue', msgValue);
     msgList.push(obj);
-    console.log('msgList', msgList);
-    Api(msgList);
+    // console.log('msgList', msgList);
+    dataObj = await Api(msgList);
+    console.log('dataObj...', dataObj);
   };
   return (
     <View style={styles.flex}>
@@ -139,13 +131,16 @@ function SendMsg() {
     </View>
   );
 }
-
+// const GetMsg = (dataObj: any) => {
+//   return <Text>{dataObj}</Text>;
+// };
 function MsgList() {
   return (
     <View>
       <AiMsg />
       <IMsg />
       <SendMsg />
+      {/* <GetMsg /> */}
     </View>
   );
 }
