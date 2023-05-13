@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {
   View,
   Image,
@@ -6,10 +6,11 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
+  KeyboardAvoidingView,
+  ScrollView,
 } from 'react-native';
-import Config from 'react-native-config';
 import type {MsgListType} from '../types';
-import {createParser} from 'eventsource-parser';
+import Api from '../api/chat';
 
 const styles = StyleSheet.create({
   container: {
@@ -70,7 +71,7 @@ function AiMsg() {
 function IMsg() {
   return (
     <View style={styles.flex}>
-      <Text style={styles.text}>this is me</Text>
+      <Text style={styles.text}>1111</Text>
       <Image
         style={styles.tinyLogo}
         source={{
@@ -80,40 +81,62 @@ function IMsg() {
     </View>
   );
 }
-const keys = Config.CHARTGPT_KEY;
-const baseUrl = Config.HTTPS_PROXY;
 
-const Api = async (arr: MsgListType[]) => {
-  const params = {
-    method: 'POST',
-    headers: {
-      'Content-Type': ' application/json',
-      Authorization: `Bearer ${keys}`,
-    },
-    body: JSON.stringify({
-      model: 'gpt-3.5-turbo',
-      messages: arr,
-      stream: false,
-    }),
-  };
-  console.log('params', params);
-  const answerRes = await fetch(`${baseUrl}/v1/chat/completions`, params);
-  const data = await answerRes;
-  const jsons = await data.json();
-  return jsons.choices[0].message;
-};
+let arrMsg = [];
+
 const msgList: MsgListType[] = [];
 
-let dataObj = {};
+let dataObj: MsgListType = {role: 'user' || 'assistant', content: ''};
+
 function SendMsg() {
+  const [msgIndex, setMsgIndex] = useState<number>(0);
   const [msgValue, setText] = useState('');
+  const [message, setMessage] = useState<string>();
+  const msgListRecord = useRef<string[]>([]);
+
+  const timer = useRef<number>();
+  function delayRender(length: number) {
+    timer.current = setInterval(() => {
+      if (msgIndex >= (length || 0)) {
+        timer.current && clearInterval(timer.current);
+      }
+      setMsgIndex(cur => cur + 1);
+    }, 50);
+  }
+
+  useEffect(() => {
+    Api(msgList)
+      .then(res => res.text())
+      .then(res => {
+        const msgList = res.split('data: ');
+        let len = msgList.length - 1;
+        for (let i = 1; i < len; i++) {
+          if (i === len) {
+            setMessage(msgListRecord.current.join(''));
+            delayRender(msgListRecord.current.join('').length);
+            break;
+          }
+
+          const resultFgm =
+            JSON.parse(msgList[i]).choices[0].delta.content || '';
+          msgListRecord.current.push(resultFgm);
+        }
+      });
+
+    return () => {
+      timer.current && clearInterval(timer.current);
+      timer.current = undefined;
+    };
+  }, []);
+
   const handleButtonClick = async () => {
     let obj: MsgListType = {role: 'user', content: msgValue};
-    // console.log('msgValue', msgValue);
+
     msgList.push(obj);
     // console.log('msgList', msgList);
-    dataObj = await Api(msgList);
-    console.log('dataObj...', dataObj);
+
+    // msgList.push(dataObj);
+    console.log('dataObj...', dataObj, msgList);
   };
   return (
     <View style={styles.flex}>
@@ -131,16 +154,34 @@ function SendMsg() {
     </View>
   );
 }
-// const GetMsg = (dataObj: any) => {
-//   return <Text>{dataObj}</Text>;
-// };
+
 function MsgList() {
   return (
     <View>
-      <AiMsg />
-      <IMsg />
+      <View>
+        <KeyboardAvoidingView style={{flex: 1}} behavior="padding" enabled>
+          <ScrollView
+            style={styles.scrollView}
+            contentInsetAdjustmentBehavior="automatic">
+            <Text style={styles.listItemContent}>
+              {message?.slice(0, msgIndex)}
+            </Text>
+            {/* {list.map(item => {
+            return (
+              <View style={styles.listItem} key={item}>
+              </View>
+            );
+          })} */}
+          </ScrollView>
+          <View style={{width: '100%', flexDirection: 'row'}}>
+            <Input style={styles.chatInput} placeholder="this is a demo" />
+            <Button title="Submit" />
+          </View>
+        </KeyboardAvoidingView>
+        {/* <AiMsg />
+        <IMsg /> */}
+      </View>
       <SendMsg />
-      {/* <GetMsg /> */}
     </View>
   );
 }
